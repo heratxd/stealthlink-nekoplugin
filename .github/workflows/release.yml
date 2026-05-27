@@ -19,7 +19,7 @@ jobs:
       - name: Checkout stealthlink protocol
         uses: actions/checkout@v4
         with:
-          repository: heratxd/stealthlink
+          repository: komarukomaru/stealthlink
           path: stealthlink
 
       - name: Set up Go

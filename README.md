@@ -1,6 +1,6 @@
 # StealthLink Plugin for NekoBox Android
 
-Плагин протокола [StealthLink](https://github.com/heratxd/stealthlink) для [NekoBox for Android](https://github.com/MatsuriDayo/NekoBoxForAndroid).
+Плагин протокола [StealthLink](https://github.com/komarukomaru/stealthlink) для [NekoBox for Android](https://github.com/MatsuriDayo/NekoBoxForAndroid).
 
 ## Что это
 
@@ -35,7 +35,7 @@ stealthlink-plugin/
 
 ```bash
 # Клонируй оба репозитория рядом
-git clone https://github.com/heratxd/stealthlink
+git clone https://github.com/komarukomaru/stealthlink
 git clone https://github.com/heratxd/stealthlink-plugin
 cd stealthlink-plugin
 
