@@ -1,7 +1,7 @@
 # StealthLink Plugin for NekoBox Android
 
 Плагин протокола [StealthLink](https://github.com/komarukomaru/stealthlink) для [NekoBox for Android](https://github.com/MatsuriDayo/NekoBoxForAndroid).
-
+[![Build & Release](https://github.com/heratxd/stealthlink-nekoplugin/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/heratxd/stealthlink-nekoplugin/actions/workflows/release.yml)
 ## Что это
 
 StealthLink — censorship-resistant VPN протокол с TLS 1.3 / QUIC транспортом и DPI-обходом (uTLS fingerprinting, padding, replay protection).
