@@ -4,7 +4,7 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.kotlin.dsl.getByName
-import org.gradle.util.GUtil.loadProperties
+
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
 import com.android.build.gradle.AbstractAppExtension
 import java.io.File
@@ -12,7 +12,7 @@ import java.io.File
 private val Project.android get() = extensions.getByName<BaseExtension>("android")
 private lateinit var flavor: String
 
-private val javaVersion = JavaVersion.VERSION_1_8
+private val javaVersion = JavaVersion.VERSION_17
 
 fun Project.requireFlavor(): String {
     if (::flavor.isInitialized) return flavor
@@ -38,8 +38,11 @@ fun Project.requireFlavor(): String {
 }
 
 fun Project.requireLocalProperties(): java.util.Properties? {
-    if (project.rootProject.file("local.properties").exists()) {
-        return loadProperties(rootProject.file("local.properties"))
+    val localPropsFile = project.rootProject.file("local.properties")
+    if (localPropsFile.exists()) {
+        return java.util.Properties().apply {
+            localPropsFile.inputStream().use { load(it) }
+        }
     }
     return null
 }
