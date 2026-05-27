@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:installLocation="internalOnly">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="false"
+        android:extractNativeLibs="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="StealthLink Plugin">
+
+        <provider
+            android:name=".BinaryProvider"
+            android:authorities="io.nekohasekai.stealthlink.BinaryProvider"
+            android:directBootAware="true"
+            android:exported="true"
+            tools:ignore="ExportedContentProvider">
+
+            <!-- NekoBox/SagerNet discovery action -->
+            <intent-filter>
+                <action android:name="io.nekohasekai.sagernet.plugin.ACTION_NATIVE_PLUGIN" />
+            </intent-filter>
+
+            <!-- shadowsocks-android compat (для максимальной совместимости) -->
+            <intent-filter>
+                <action android:name="com.github.shadowsocks.plugin.ACTION_NATIVE_PLUGIN" />
+            </intent-filter>
+
+            <!-- URI роутинг плагина -->
+            <intent-filter>
+                <action android:name="io.nekohasekai.sagernet.plugin.ACTION_NATIVE_PLUGIN" />
+                <data
+                    android:host="moe.matsuri.lite"
+                    android:path="/io.nekohasekai.stealthlink"
+                    android:scheme="plugin" />
+            </intent-filter>
+
+            <!-- Уникальный ID плагина — NekoBox ищет по нему -->
+            <meta-data
+                android:name="io.nekohasekai.sagernet.plugin.id"
+                android:value="io.nekohasekai.stealthlink" />
+            <!-- shadowsocks compat alias -->
+            <meta-data
+                android:name="com.github.shadowsocks.plugin.id"
+                android:value="stealthlink" />
+
+            <!-- Путь к бинарнику в nativeLibraryDir -->
+            <meta-data
+                android:name="io.nekohasekai.sagernet.plugin.executable_path"
+                android:value="libstealthlink.so" />
+            <meta-data
+                android:name="io.nekohasekai.sagernet.plguin.executable_path"
+                android:value="libstealthlink.so" />
+
+            <!-- Пример дефолтных опций для SS_PLUGIN_OPTIONS -->
+            <meta-data
+                android:name="com.github.shadowsocks.plugin.default_config"
+                android:value="psk=;sni=;transport=tls;fingerprint=chrome" />
+
+        </provider>
+
+    </application>
+
+</manifest>

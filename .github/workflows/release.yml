@@ -1,0 +1,61 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout stealthlink-nekoplugin
+        uses: actions/checkout@v4
+        with:
+          path: stealthlink-nekoplugin
+
+      - name: Checkout stealthlink protocol
+        uses: actions/checkout@v4
+        with:
+          repository: heratxd/stealthlink
+          path: stealthlink
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build binaries
+        working-directory: stealthlink-nekoplugin
+        run: bash build.sh --binary
+
+      - name: Build APK (debug, no signing)
+        working-directory: stealthlink-nekoplugin
+        run: ./gradlew :app_stealthlink:assembleRelease
+        env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: stealthlink-plugin-apk
+          path: stealthlink-nekoplugin/app_stealthlink/build/outputs/apk/**/*.apk
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: stealthlink-nekoplugin/app_stealthlink/build/outputs/apk/**/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

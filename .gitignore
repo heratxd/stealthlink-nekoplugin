@@ -1,0 +1,11 @@
+*.jks
+local.properties
+.gradle/
+build/
+app_stealthlink/libs/arm64-v8a/
+app_stealthlink/libs/armeabi-v7a/
+app_stealthlink/libs/x86/
+app_stealthlink/libs/x86_64/
+plugin/go.sum
+.idea/
+*.iml
