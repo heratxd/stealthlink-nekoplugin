@@ -71,6 +71,7 @@ fun Project.setupCommon() {
 
         sourceSets.getByName("main") {
             jniLibs.srcDir("libs")
+            assets.srcDir("html")
         }
 
         splits.abi {
