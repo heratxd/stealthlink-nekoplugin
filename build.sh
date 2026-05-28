@@ -104,10 +104,10 @@ build_apk() {
     cd "$SCRIPT_DIR"
     chmod +x gradlew
 
-    log_info "Запуск Gradle assembleRelease..."
-    ./gradlew :app_stealthlink:assembleRelease
+    log_info "Запуск Gradle assembleDebug..."
+    ./gradlew :app_stealthlink:assembleDebug
 
-    APK_DIR="$SCRIPT_DIR/app_stealthlink/build/outputs/apk/release"
+    APK_DIR="$SCRIPT_DIR/app_stealthlink/build/outputs/apk/debug"
     if ls "$APK_DIR"/*.apk &>/dev/null; then
         log_success "=== APK готов ==="
         ls -lh "$APK_DIR"/*.apk

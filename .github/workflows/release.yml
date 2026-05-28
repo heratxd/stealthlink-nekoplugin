@@ -13,16 +13,8 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout stealthlink-nekoplugin
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          path: stealthlink-nekoplugin
-
-      - name: Checkout stealthlink protocol
-        uses: actions/checkout@v4
-        with:
-          repository: komarukomaru/stealthlink
-          path: stealthlink
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -39,11 +31,9 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Build binaries
-        working-directory: stealthlink-nekoplugin
         run: bash build.sh --binary
 
       - name: Build APK (debug, auto-signed)
-        working-directory: stealthlink-nekoplugin
         run: ./gradlew :app_stealthlink:assembleDebug
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
@@ -52,12 +42,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: stealthlink-plugin-apk
-          path: stealthlink-nekoplugin/app_stealthlink/build/outputs/apk/**/*.apk
+          path: app_stealthlink/build/outputs/apk/**/*.apk
 
       - name: Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: stealthlink-nekoplugin/app_stealthlink/build/outputs/apk/**/*.apk
+          files: app_stealthlink/build/outputs/apk/**/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
