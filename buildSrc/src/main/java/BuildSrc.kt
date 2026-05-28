@@ -75,7 +75,7 @@ fun Project.setupCommon() {
         }
 
         splits.abi {
-            isEnable = true
+            isEnable = false
             isUniversalApk = false
         }
 
