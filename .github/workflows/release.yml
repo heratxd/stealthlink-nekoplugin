@@ -42,9 +42,9 @@ jobs:
         working-directory: stealthlink-nekoplugin
         run: bash build.sh --binary
 
-      - name: Build APK (debug, no signing)
+      - name: Build APK (debug, auto-signed)
         working-directory: stealthlink-nekoplugin
-        run: ./gradlew :app_stealthlink:assembleRelease
+        run: ./gradlew :app_stealthlink:assembleDebug
         env:
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
 
