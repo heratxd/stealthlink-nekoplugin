@@ -26,6 +26,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -103,18 +104,107 @@ func getEnv(key, fallback string) string {
 }
 
 func main() {
-	// === SIP003 переменные окружения ===
+	// Поддержка CLI-аргументов для NekoBox (SagerNet Native Plugin)
+	flagServerAddr := flag.String("server", "", "Адрес сервера host:port")
+	flagPsk := flag.String("psk", "", "Pre-shared key")
+	flagSni := flag.String("sni", "", "SNI hostname")
+	flagTransportM := flag.String("transport", "", "tls, quic, auto")
+	flagSocksAddr := flag.String("socks", "", "SOCKS5 адрес")
+	flagSecretPath := flag.String("path", "", "Секретный HTTP путь")
+	flagFingerprint := flag.String("fingerprint", "", "uTLS fingerprint")
+	flagSubURL := flag.String("sub", "", "Subscription URL stealthlink://...")
+	flagLogPath := flag.String("log", "", "Путь к файлу логов")
+	flagInsecure := flag.Bool("insecure", false, "Отключить проверку TLS сертификата")
+	flagNoPadding := flag.Bool("no-padding", false, "Отключить паддинг")
+	flagNoStealth := flag.Bool("no-stealth", false, "Отключить stealth-фичи")
+	flag.Parse()
+
+	// === SIP003 переменные окружения (Shadowsocks compat) ===
 	remoteHost := getEnv("SS_REMOTE_HOST", "")
 	remotePort := getEnv("SS_REMOTE_PORT", "443")
 	localHost  := getEnv("SS_LOCAL_HOST", "127.0.0.1")
 	localPort  := getEnv("SS_LOCAL_PORT", "1080")
 	pluginOpts := getEnv("SS_PLUGIN_OPTIONS", "")
 
-	// Парсим дополнительные опции
+	// Парсим дополнительные опции (SIP003)
 	opts := parsePluginOptions(pluginOpts)
 
+	// Объединяем конфигурации (CLI имеет приоритет над SIP003, если задано)
+	subURL := opts["sub"]
+	if *flagSubURL != "" {
+		subURL = *flagSubURL
+	}
+
+	serverAddr := ""
+	if *flagServerAddr != "" {
+		serverAddr = *flagServerAddr
+	} else if remoteHost != "" {
+		serverAddr = fmt.Sprintf("%s:%s", remoteHost, remotePort)
+	}
+
+	socksAddr := ""
+	if *flagSocksAddr != "" {
+		socksAddr = *flagSocksAddr
+	} else {
+		socksAddr = fmt.Sprintf("%s:%s", localHost, localPort)
+	}
+
+	psk := opts["psk"]
+	if *flagPsk != "" {
+		psk = *flagPsk
+	}
+
+	sni := opts["sni"]
+	if *flagSni != "" {
+		sni = *flagSni
+	}
+
+	transportM := opts["transport"]
+	if *flagTransportM != "" {
+		transportM = *flagTransportM
+	}
+	if transportM == "" {
+		transportM = "tls"
+	}
+
+	secretPath := opts["path"]
+	if *flagSecretPath != "" {
+		secretPath = *flagSecretPath
+	}
+	if secretPath == "" {
+		secretPath = "/api/v2/sync"
+	}
+
+	fingerprint := opts["fingerprint"]
+	if *flagFingerprint != "" {
+		fingerprint = *flagFingerprint
+	}
+	if fingerprint == "" {
+		fingerprint = "chrome"
+	}
+
+	insecure, _ := strconv.ParseBool(opts["insecure"])
+	if *flagInsecure {
+		insecure = true
+	}
+
+	noPadding, _ := strconv.ParseBool(opts["no-padding"])
+	if *flagNoPadding {
+		noPadding = true
+	}
+
+	noStealth, _ := strconv.ParseBool(opts["no-stealth"])
+	if *flagNoStealth {
+		noStealth = true
+	}
+
+	logPath := opts["log"]
+	if *flagLogPath != "" {
+		logPath = *flagLogPath
+	}
+
 	// === Настройка логирования ===
-	if logPath := opts["log"]; logPath != "" {
+	if logPath != "" {
 		f, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err == nil {
 			log.SetOutput(f)
@@ -126,46 +216,13 @@ func main() {
 
 	// === Конфигурация ===
 
-	// Subscription URL — приоритет над remoteHost/remotePort
-	subURL := opts["sub"]
-
-	if subURL == "" && remoteHost == "" {
-		log.Fatal("[StealthLink] SS_REMOTE_HOST не задан и sub= не указан в SS_PLUGIN_OPTIONS")
+	if subURL == "" && serverAddr == "" {
+		log.Fatal("[StealthLink] serverAddr не задан и sub= не указан")
 	}
 
-	// Адрес сервера
-	serverAddr := ""
-	if remoteHost != "" {
-		serverAddr = fmt.Sprintf("%s:%s", remoteHost, remotePort)
-	}
-
-	// SOCKS5 адрес (NekoBox говорит на каком порту слушать)
-	socksAddr := fmt.Sprintf("%s:%s", localHost, localPort)
-
-	// PSK
-	psk := opts["psk"]
 	if psk == "" && subURL == "" {
-		log.Fatal("[StealthLink] psk= обязателен в SS_PLUGIN_OPTIONS (или использовать sub=)")
+		log.Fatal("[StealthLink] psk= обязателен (или использовать sub=)")
 	}
-
-	// Остальные параметры
-	sni         := opts["sni"]
-	transportM  := opts["transport"]
-	if transportM == "" {
-		transportM = "tls"
-	}
-	secretPath  := opts["path"]
-	if secretPath == "" {
-		secretPath = "/api/v2/sync"
-	}
-	fingerprint := opts["fingerprint"]
-	if fingerprint == "" {
-		fingerprint = "chrome"
-	}
-
-	insecure, _ := strconv.ParseBool(opts["insecure"])
-	noPadding, _ := strconv.ParseBool(opts["no-padding"])
-	noStealth, _ := strconv.ParseBool(opts["no-stealth"])
 
 	// Подписка
 	var subscription *transport.SubscriptionConfig

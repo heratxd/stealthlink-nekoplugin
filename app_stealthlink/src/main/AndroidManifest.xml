@@ -7,6 +7,7 @@
 
     <application
         android:allowBackup="false"
+        android:extractNativeLibs="true"
         android:label="StealthLink Plugin">
 
         <provider
@@ -49,7 +50,7 @@
                 android:name="io.nekohasekai.sagernet.plugin.executable_path"
                 android:value="libstealthlink.so" />
             <meta-data
-                android:name="io.nekohasekai.sagernet.plguin.executable_path"
+                android:name="com.github.shadowsocks.plugin.executable_path"
                 android:value="libstealthlink.so" />
 
             <!-- Пример дефолтных опций для SS_PLUGIN_OPTIONS -->
